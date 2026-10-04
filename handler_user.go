@@ -70,6 +70,7 @@ func handlerRegister(s *state, cmd command) error {
 		return fmt.Errorf("couldn't set current user: %v", err)
 	}
 
+	fmt.Println("User created successfullly!")
 	log.Printf("created user: %+v", createdUser)
 	return nil
 }
@@ -84,5 +85,6 @@ func handlerReset(s *state, cmd command) error {
 		return fmt.Errorf("error when deleting all user: %v", err)
 	}
 
+	fmt.Println("Database reset successfully!")
 	return nil
 }
