@@ -1,14 +1,18 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 
 	"github.com/gundamdouble00/blog-aggregator-2/internal/config"
+	"github.com/gundamdouble00/blog-aggregator-2/internal/database"
+	_ "github.com/lib/pq"
 )
 
 type state struct {
 	cfg *config.Config
+	db  *database.Queries
 }
 
 func main() {
@@ -17,18 +21,27 @@ func main() {
 		log.Fatalf("error reading config: %v", err)
 	}
 
+	db, err := sql.Open("postgres", cfg.DBURL)
+	if err != nil {
+		log.Fatalf("error connecting to the database: %v", err)
+	}
+
+	dbQueries := database.New(db)
 	newState := &state{
 		cfg: &cfg,
+		db:  dbQueries,
 	}
-	newCommands := commands{
-		cmdHandlers: make(map[string]func(*state, command) error),
-	}
-	newCommands.register("login", handlerLogin)
+
 	cmdArgs := os.Args
 	if len(cmdArgs) < 2 {
 		log.Fatal("Usage: cli <command> [args...]")
 	}
 
+	newCommands := commands{
+		cmdHandlers: make(map[string]func(*state, command) error),
+	}
+	newCommands.register("login", handlerLogin)
+	newCommands.register("register", handlerRegister)
 	cmd := command{
 		Name: cmdArgs[1],
 		Args: cmdArgs[2:],
