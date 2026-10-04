@@ -45,15 +45,13 @@ func handlerRegister(s *state, cmd command) error {
 
 	name := cmd.Args[0]
 	ctxBackGround := context.Background()
-	user, err := s.db.GetUser(ctxBackGround, name)
-	if err != nil {
-		if !errors.Is(err, sql.ErrNoRows) {
-			return fmt.Errorf("error when retrieving user: %v", err)
-		}
+	_, err := s.db.GetUser(ctxBackGround, name)
+	if err == nil {
+		return fmt.Errorf("user already exists")
 	}
 
-	if user.Name == name {
-		return fmt.Errorf("existing user")
+	if !errors.Is(err, sql.ErrNoRows) {
+		return fmt.Errorf("error when retrieving user: %v", err)
 	}
 
 	newUser := database.CreateUserParams{
