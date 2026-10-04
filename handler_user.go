@@ -73,3 +73,16 @@ func handlerRegister(s *state, cmd command) error {
 	log.Printf("created user: %+v", createdUser)
 	return nil
 }
+
+func handlerReset(s *state, cmd command) error {
+	if len(cmd.Args) != 0 {
+		return fmt.Errorf("\"reset\" command doesn't have any arguments")
+	}
+
+	err := s.db.DeleteAllUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("error when deleting all user: %v", err)
+	}
+
+	return nil
+}
