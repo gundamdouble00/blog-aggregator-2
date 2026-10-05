@@ -46,6 +46,7 @@ func main() {
 	newCommands.register("reset", handlerReset)
 	newCommands.register("users", handlerUsers)
 	newCommands.register("agg", handlerAgg)
+	newCommands.register("addfeed", handlerAddFeed)
 	err = newCommands.run(newState,
 		command{
 			Name: cmdArgs[1],
