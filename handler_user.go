@@ -25,12 +25,12 @@ func handlerLogin(s *state, cmd command) error {
 			return fmt.Errorf("invalid user: %v", name)
 		}
 
-		return fmt.Errorf("error when retrieving user: %v", err)
+		return fmt.Errorf("error when retrieving user: %w", err)
 	}
 
 	err = s.cfg.SetUser(name)
 	if err != nil {
-		return fmt.Errorf("couldn't set current user: %v", err)
+		return fmt.Errorf("couldn't set current user: %w", err)
 	}
 
 	fmt.Println("User switch successfully!")
@@ -51,7 +51,7 @@ func handlerRegister(s *state, cmd command) error {
 	}
 
 	if !errors.Is(err, sql.ErrNoRows) {
-		return fmt.Errorf("error when retrieving user: %v", err)
+		return fmt.Errorf("error when retrieving user: %w", err)
 	}
 
 	newUser := database.CreateUserParams{
@@ -62,12 +62,12 @@ func handlerRegister(s *state, cmd command) error {
 	}
 	createdUser, err := s.db.CreateUser(ctxBackGround, newUser)
 	if err != nil {
-		return fmt.Errorf("could create user: %v", err)
+		return fmt.Errorf("could create user: %w", err)
 	}
 
 	err = s.cfg.SetUser(name)
 	if err != nil {
-		return fmt.Errorf("couldn't set current user: %v", err)
+		return fmt.Errorf("couldn't set current user: %w", err)
 	}
 
 	fmt.Println("User created successfullly!")
@@ -82,7 +82,7 @@ func handlerReset(s *state, cmd command) error {
 
 	err := s.db.DeleteAllUsers(context.Background())
 	if err != nil {
-		return fmt.Errorf("error when deleting all user: %v", err)
+		return fmt.Errorf("error when deleting all user: %w", err)
 	}
 
 	fmt.Println("Database reset successfully!")
@@ -92,7 +92,7 @@ func handlerReset(s *state, cmd command) error {
 func handlerUsers(s *state, cmd command) error {
 	users, err := s.db.GetUsers(context.Background())
 	if err != nil {
-		return fmt.Errorf("error retrieving users: %v", err)
+		return fmt.Errorf("error retrieving users: %w", err)
 	}
 
 	for _, user := range users {

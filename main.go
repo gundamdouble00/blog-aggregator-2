@@ -46,11 +46,12 @@ func main() {
 	newCommands.register("reset", handlerReset)
 	newCommands.register("users", handlerUsers)
 	newCommands.register("agg", handlerAgg)
-	cmd := command{
-		Name: cmdArgs[1],
-		Args: cmdArgs[2:],
-	}
-	err = newCommands.run(newState, cmd)
+	err = newCommands.run(newState,
+		command{
+			Name: cmdArgs[1],
+			Args: cmdArgs[2:],
+		},
+	)
 	if err != nil {
 		log.Fatal(err)
 	}

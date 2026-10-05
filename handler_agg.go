@@ -31,7 +31,7 @@ func handlerAgg(s *state, cmd command) error {
 
 	rssFeed, err := fetchFeed(context.Background(), RSS_URL)
 	if err != nil {
-		return err
+		return fmt.Errorf("couldn't fetch feed: %w", err)
 	}
 
 	printRSSFeed(*rssFeed)
