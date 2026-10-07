@@ -20,7 +20,8 @@ func handlerAddFeed(s *state, cmd command) error {
 		return fmt.Errorf("couldn't retrieve user: %w", err)
 	}
 
-	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{
+	ctxBackground := context.Background()
+	feed, err := s.db.CreateFeed(ctxBackground, database.CreateFeedParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -30,6 +31,17 @@ func handlerAddFeed(s *state, cmd command) error {
 	})
 	if err != nil {
 		return fmt.Errorf("couldn't create feed: %w", err)
+	}
+
+	_, err = s.db.CreateFeedFollow(ctxBackground, database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("couldn't saving feed follow: %w", err)
 	}
 
 	fmt.Println("Feed created successfully")

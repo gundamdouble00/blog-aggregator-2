@@ -48,6 +48,8 @@ func main() {
 	newCommands.register("agg", handlerAgg)
 	newCommands.register("addfeed", handlerAddFeed)
 	newCommands.register("feeds", handlerFeeds)
+	newCommands.register("follow", handlerFollow)
+	newCommands.register("following", handlerFollowing)
 	err = newCommands.run(newState,
 		command{
 			Name: cmdArgs[1],
