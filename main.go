@@ -50,6 +50,7 @@ func main() {
 	newCommands.register("feeds", handlerFeeds)
 	newCommands.register("follow", middlewareLoggedIn(handlerFollow))
 	newCommands.register("following", middlewareLoggedIn(handlerFollowing))
+	newCommands.register("unfollow", middlewareLoggedIn(handlerUnfollow))
 	err = newCommands.run(newState,
 		command{
 			Name: cmdArgs[1],

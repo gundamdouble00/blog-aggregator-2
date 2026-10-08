@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -58,5 +60,32 @@ func handlerFollowing(s *state, cmd command, user database.User) error {
 		fmt.Println("No feed follows found for this user.")
 	}
 
+	return nil
+}
+
+func handlerUnfollow(s *state, cmd command, user database.User) error {
+	if len(cmd.Args) != 1 {
+		return fmt.Errorf("usage: unfollow <url>")
+	}
+
+	url := cmd.Args[0]
+	feed, err := s.db.GetFeedByURL(context.Background(), url)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("no feed found with url: %s", url)
+		}
+
+		return fmt.Errorf("couldn't get feed: %w", err)
+	}
+
+	err = s.db.DeleteFeedFollow(context.Background(), database.DeleteFeedFollowParams{
+		UserID: user.ID,
+		FeedID: feed.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("couldn't delete feed follow: %w", err)
+	}
+
+	fmt.Println("Unfollowed feed successfully.")
 	return nil
 }
