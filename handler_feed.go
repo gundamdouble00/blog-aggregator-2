@@ -9,15 +9,10 @@ import (
 	"github.com/gundamdouble00/blog-aggregator-2/internal/database"
 )
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	numArgs := len(cmd.Args)
 	if numArgs != 2 {
 		return fmt.Errorf("usase: %v <name> <url>", cmd.Name)
-	}
-
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("couldn't retrieve user: %w", err)
 	}
 
 	ctxBackground := context.Background()

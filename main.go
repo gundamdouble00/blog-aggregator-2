@@ -46,10 +46,10 @@ func main() {
 	newCommands.register("reset", handlerReset)
 	newCommands.register("users", handlerUsers)
 	newCommands.register("agg", handlerAgg)
-	newCommands.register("addfeed", handlerAddFeed)
+	newCommands.register("addfeed", middlewareLoggedIn(handlerAddFeed))
 	newCommands.register("feeds", handlerFeeds)
-	newCommands.register("follow", handlerFollow)
-	newCommands.register("following", handlerFollowing)
+	newCommands.register("follow", middlewareLoggedIn(handlerFollow))
+	newCommands.register("following", middlewareLoggedIn(handlerFollowing))
 	err = newCommands.run(newState,
 		command{
 			Name: cmdArgs[1],

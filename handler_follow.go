@@ -9,17 +9,12 @@ import (
 	"github.com/gundamdouble00/blog-aggregator-2/internal/database"
 )
 
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("usage: %s <url>", cmd.Name)
 	}
 
 	ctxBackground := context.Background()
-	user, err := s.db.GetUser(ctxBackground, s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("couldn't retrieving user: %w", err)
-	}
-
 	feedURL := cmd.Args[0]
 	feed, err := s.db.GetFeedByURL(ctxBackground, feedURL)
 	if err != nil {
@@ -43,15 +38,9 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollowing(s *state, cmd command) error {
+func handlerFollowing(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) != 0 {
 		return fmt.Errorf("usage: following")
-	}
-
-	ctxBackground := context.Background()
-	user, err := s.db.GetUser(ctxBackground, s.cfg.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("couldn't retrieving user: %w", err)
 	}
 
 	followRecorlds, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
