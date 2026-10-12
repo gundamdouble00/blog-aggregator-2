@@ -2,12 +2,56 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
+	"log"
+	"time"
 )
 
-const RSS_URL = "https://www.wagslane.dev/index.xml"
-const MDN_RSS_URL = "https://developer.mozilla.org/en-US/blog/rss.xml"
-const MEDIUM = "https://medium.com"
+func handlerAgg(s *state, cmd command) error {
+	if len(cmd.Args) != 1 {
+		return fmt.Errorf("usage: agg <time_between_reqs>")
+	}
+
+	timeBetweenReqs, err := time.ParseDuration(cmd.Args[0])
+	if err != nil {
+		return fmt.Errorf("couldn't parse duration: %w", err)
+	}
+
+	fmt.Printf("Collecting feeds every %v...\n", timeBetweenReqs)
+	ticker := time.NewTicker(timeBetweenReqs)
+	for ; ; <-ticker.C {
+		err = scrapeFeeds(s)
+		if err != nil {
+			log.Print(err)
+		}
+	}
+}
+
+func scrapeFeeds(s *state) error {
+	nextFeed, err := s.db.GetNextFeedToFetch(context.Background())
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("not following any feeds")
+		}
+
+		return fmt.Errorf("couldn't get next feed: %w", err)
+	}
+
+	err = s.db.MarkFeedFetched(context.Background(), nextFeed.ID)
+	if err != nil {
+		return fmt.Errorf("couldn't mark feed fetch: %w", err)
+	}
+
+	rssFeed, err := fetchFeed(context.Background(), nextFeed.Url)
+	if err != nil {
+		return fmt.Errorf("couldn't fetch feed: %w", err)
+	}
+
+	printRSSFeed(*rssFeed)
+	return nil
+}
 
 func printRSSFeed(rssFeed RSSFeed) {
 	channel := rssFeed.Channel
@@ -22,18 +66,4 @@ func printRSSFeed(rssFeed RSSFeed) {
 		fmt.Printf("\tPublic Date: %s\n", item.PubDate)
 		fmt.Println()
 	}
-}
-
-func handlerAgg(s *state, cmd command) error {
-	if len(cmd.Args) != 0 {
-		return fmt.Errorf("\"agg\" command doesn't have any arguments")
-	}
-
-	rssFeed, err := fetchFeed(context.Background(), RSS_URL)
-	if err != nil {
-		return fmt.Errorf("couldn't fetch feed: %w", err)
-	}
-
-	printRSSFeed(*rssFeed)
-	return nil
 }
